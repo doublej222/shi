@@ -91,19 +91,19 @@ void Med_Manage::ShowData()
 
 	}
 
-	UpdateStatistics();
+	Update_statistics();
 }
 
 BEGIN_MESSAGE_MAP(Med_Manage, CDialogEx)
 	ON_BN_CLICKED(IDOK, &Med_Manage::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON1, &Med_Manage::OnBnClickedButton1)
-	ON_BN_CLICKED(IDC_BUTTON3, &Med_Manage::OnBnClickedButton3)
-	ON_BN_CLICKED(IDC_BUTTON4, &Med_Manage::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON3, &Med_Manage::OnBnClicked_search_drug)
+	ON_BN_CLICKED(IDC_BUTTON4, &Med_Manage::OnBnClicked_edit_drug)
 	ON_BN_CLICKED(IDC_BUTTON5, &Med_Manage::OnBnClickedButton5)
-	ON_BN_CLICKED(IDC_BUTTON6, &Med_Manage::OnBnClickedButton6)
-	ON_BN_CLICKED(IDC_BUTTON2, &Med_Manage::OnBnClickedButton2)
-	ON_CBN_SELCHANGE(IDC_COMBO2, &Med_Manage::OnCbnSelchangeCombo2)
-	ON_BN_CLICKED(IDC_BUTTON7, &Med_Manage::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON6, &Med_Manage::OnBnClicked_add_drug)
+	ON_BN_CLICKED(IDC_BUTTON2, &Med_Manage::OnBnClicked_delete_drug)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &Med_Manage::OnCbnSelchange_sort_rule)
+	ON_BN_CLICKED(IDC_BUTTON7, &Med_Manage::OnBnClicked_user_manage)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &Med_Manage::OnLvnItemchangedList1)
 END_MESSAGE_MAP()
 
@@ -115,7 +115,7 @@ void Med_Manage::OnBnClickedOk()
 	// TODO: 在此添加控件通知处理程序代码
 	CDialogEx::OnOK();
 }
-
+// 导入
 void Med_Manage::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -130,11 +130,11 @@ void Med_Manage::OnBnClickedButton1()
 	}
 }
 
-void Med_Manage::OnBnClickedButton3()
+// 查询功能
+void Med_Manage::OnBnClicked_search_drug()
 {
 	SeekDlg dlg;
 	if (dlg.DoModal() == IDOK) {
-		// 1. 获取输入并去除两端多余空格
 		dlg.t_name.Trim();
 		dlg.t_kind.Trim();
 
@@ -144,7 +144,6 @@ void Med_Manage::OnBnClickedButton3()
 		vector<drugs_info> searchResults;
 
 		for (const auto& info : Info) {
-			// 2. 将数据库中的数据转为 CString，并去除两端空格
 			CString dbName = Utf8ToCString(info.m_name);
 			CString dbKind = Utf8ToCString(info.m_kind);
 			dbName.Trim();
@@ -153,7 +152,7 @@ void Med_Manage::OnBnClickedButton3()
 			bool nameMatch = true;
 			bool kindMatch = true;
 
-			// 3. 比较逻辑（使用 CString 的 Find 方法，不区分大小写且更稳定）
+			// 比较
 			if (!sSearchName.IsEmpty()) {
 				if (dbName.Find(sSearchName) == -1) { // 找不到返回 -1
 					nameMatch = false;
@@ -172,7 +171,7 @@ void Med_Manage::OnBnClickedButton3()
 			}
 		}
 
-		// 4. 显示结果
+		// 显示结果
 		if (searchResults.empty()) {
 			MessageBox(_T("未找到符合条件的相关药品！"), _T("提示"));
 		}
@@ -194,8 +193,8 @@ void Med_Manage::OnBnClickedButton3()
 		}
 	}
 }
-
-void Med_Manage::OnBnClickedButton4()
+// 修改功能
+void Med_Manage::OnBnClicked_edit_drug()
 {
 	// 获取当前选中的行索引
 	int nIndex = m_list.GetSelectionMark();
@@ -216,7 +215,6 @@ void Med_Manage::OnBnClickedButton4()
 	// 弹出对话框
 	if (dlg.DoModal() == IDOK)
 	{
-		// 确保数据库连接正常
 		if (!SQL.Connect_MySQL()) {
 			MessageBox(_T("数据库连接失败！"));
 			return;
@@ -249,7 +247,8 @@ void Med_Manage::OnBnClickedButton5()
 	CDialogEx::OnCancel();
 }
 
-void Med_Manage::OnBnClickedButton6()
+// 添加功能
+void Med_Manage::OnBnClicked_add_drug()
 {
 	Info_Dlg dlg;
 
@@ -276,7 +275,8 @@ void Med_Manage::OnBnClickedButton6()
 	}
 }
 
-void Med_Manage::OnBnClickedButton2()
+// 删除功能
+void Med_Manage::OnBnClicked_delete_drug()
 {
 	int nIndex = m_list.GetNextItem(-1, LVNI_SELECTED);
 	if (nIndex == -1)
@@ -316,9 +316,8 @@ void Med_Manage::OnBnClickedButton2()
 	ShowData();
 }
 
-
-
-void Med_Manage::OnCbnSelchangeCombo2()
+// 排序
+void Med_Manage::OnCbnSelchange_sort_rule()
 {
 	if (Info.empty()) return;
 
@@ -327,7 +326,8 @@ void Med_Manage::OnCbnSelchangeCombo2()
 	if (nIndex == CB_ERR) return;
 
 	CString strRule;
-	pCombo->GetLBText(nIndex, strRule); // 获取选中的文字内容
+	// 获取选中的文字内容
+	pCombo->GetLBText(nIndex, strRule); 
 
 	// 根据选中的文字内容执行对应的排序 Lambda
 	if (strRule == _T("编号：从低到高")) {
@@ -365,7 +365,8 @@ void Med_Manage::OnCbnSelchangeCombo2()
 	ShowData();
 }
 
-void Med_Manage::OnBnClickedButton7()
+// 管理信息
+void Med_Manage::OnBnClicked_user_manage()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	UserManageDlg dlg;
@@ -379,7 +380,8 @@ void Med_Manage::OnLvnItemchangedList1(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 }
 
-void Med_Manage::UpdateStatistics()
+// 数据统计函数
+void Med_Manage::Update_statistics()
 {
 	if (Info.empty())
 	{
@@ -399,7 +401,7 @@ void Med_Manage::UpdateStatistics()
 		nTotalNum += item.m_num;
 		dTotalValue += (double)item.m_num * item.m_rmb;
 	}
-
+   
 	// 格式化数据
 	CString strKinds, strNum, strValue;
 	strKinds.Format(_T("%d"), nTotalKinds);

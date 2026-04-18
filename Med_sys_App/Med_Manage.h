@@ -34,15 +34,15 @@ public:
 
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButton1();
-	afx_msg void OnBnClickedButton3();
-	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClicked_search_drug();
+	afx_msg void OnBnClicked_edit_drug();
 	afx_msg void OnBnClickedButton5();
-	afx_msg void OnBnClickedButton6();
-	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClicked_add_drug();
+	afx_msg void OnBnClicked_delete_drug();
 	CString m_rule1;
-	afx_msg void OnCbnSelchangeCombo2();
-	afx_msg void OnBnClickedButton7();
+	afx_msg void OnCbnSelchange_sort_rule();
+	afx_msg void OnBnClicked_user_manage();
 	afx_msg void OnLvnItemchangedList1(NMHDR* pNMHDR, LRESULT* pResult);
 
-	void UpdateStatistics(); // 数据统计函数
+	void Update_statistics(); // 数据统计函数
 };

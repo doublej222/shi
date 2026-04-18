@@ -24,6 +24,6 @@ protected:
 public:
 	CString t_name;
 	CString t_kind; 
-	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClicked_Seek_Ok();
 	afx_msg void OnEnChangeEdit8();
 };

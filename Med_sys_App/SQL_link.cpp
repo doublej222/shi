@@ -2,6 +2,7 @@
 #include "SQL_link.h"
 
 
+// 连接数据库
 bool SQL_link::Connect_MySQL()
 {
 	// 初始化 MySQL 连接对象
@@ -36,6 +37,7 @@ bool SQL_link::Connect_MySQL_()
     return true;
 }
 
+// 检查登录信息
 bool SQL_link::CheckLogin(CString username, CString password)
 {
     CStringA sql;
@@ -63,7 +65,7 @@ bool SQL_link::CheckLogin(CString username, CString password)
 
     // 判断是否有数据
     int row = mysql_num_rows(res);
-
+	// 释放结果资源
     mysql_free_result(res);
 
     if (row > 0)
@@ -76,34 +78,7 @@ bool SQL_link::CheckLogin(CString username, CString password)
     }
 }
 
-//vector<drugs_info> SQL_link::Get_All_Info()
-//{
-//    vector<drugs_info> Info;
-//   snprintf(sql, SQL_MAX, "SELECT * FROM drugs_info");
-//   // 查询数据
-//   int ret = mysql_real_query(&mysqlCon, sql, (unsigned long)strlen(sql));
-//   // 获取结果
-//   if (ret){
-//           AfxMessageBox(_T("查询失败！"));
-//           return Info;
-//   }
-//   // 获取结果
-//   res = mysql_store_result(&mysqlCon);
-//
-//   while (row = mysql_fetch_row(res)) {
-//       drugs_info druginfo(
-//           atoi(row[0]),           // 编号
-//           row[1],                 // 名称
-//           row[2],                 // 类型
-//           atoi(row[3]),           // 数量
-//           atoi(row[4])            // 价格
-//       );
-//	   Info.push_back(druginfo);
-//   }
-//   mysql_free_result(res);
-//
-//   return Info;
-//}
+// 获取所有药品信息
 vector<drugs_info> SQL_link::Get_All_Info()
 {
     vector<drugs_info> Info;
@@ -144,6 +119,7 @@ vector<drugs_info> SQL_link::Get_All_Info()
     return Info;
 }
 
+// 添加药品信息
 bool SQL_link::AddDrug(const drugs_info& info)
 {
     snprintf(sql, SQL_MAX,
@@ -167,6 +143,7 @@ bool SQL_link::AddDrug(const drugs_info& info)
     return true;
 }
 
+// 删除药品信息
 bool SQL_link::DeleteDrug(int id)
 {
     snprintf(sql, SQL_MAX,
@@ -185,10 +162,10 @@ bool SQL_link::DeleteDrug(int id)
     return true;
 }
 
+// 更新药品信息
 bool SQL_link::UpdateDrug(int oldId, const drugs_info& info)
 {
-    // 1. 构建 SQL 语句
-    // 注意：这里确保表名和字段名是用反引号 ` 包裹的，防止与保留字冲突
+    // 
     snprintf(sql, SQL_MAX,
         "UPDATE `drugs_info` SET `med_id`=%d, `med_name`='%s', `med_kind`='%s', `med_num`=%d, `med_rmb`=%d WHERE `med_id`=%d",
         info.m_id,
@@ -198,27 +175,27 @@ bool SQL_link::UpdateDrug(int oldId, const drugs_info& info)
         info.m_rmb,
         oldId);
 
-    // 2. 执行查询
+    // 执行查询
     int ret = mysql_real_query(&mysqlCon, sql, (unsigned long)strlen(sql));
     if (ret)
     {
-        // 3. 获取 MySQL 的原始错误信息
         const char* pError = mysql_error(&mysqlCon);
 
-        // 转换为 Unicode 以便在 MFC 弹窗显示
+		// 将错误信息和SQL语句转换为CString
         CString strError = CA2T(pError, CP_UTF8);
         CString strSql = CA2T(sql, CP_UTF8);
 
         CString msg;
         msg.Format(_T("数据库执行失败！\n\n错误原因：%s\n\n执行的SQL语句：\n%s"), strError, strSql);
 
-        // 使用 AfxMessageBox 弹出详细错误
+		// 弹出错误信息
         AfxMessageBox(msg, MB_ICONERROR);
         return false;
     }
 
     return true;
 }
+// 获取所有管理员信息
 vector<SQL_link::AdminInfo> SQL_link::GetAllAdmins() {
     vector<AdminInfo> admins;
     if (mysql_query(&mysqlCon, "SELECT m_username, m_userpsw FROM users_info")) return admins;
@@ -234,15 +211,14 @@ vector<SQL_link::AdminInfo> SQL_link::GetAllAdmins() {
     }
     return admins;
 }
-
+// 
 bool SQL_link::AddAdmin(CString name, CString psw) {
     CStringA sql;
-    // 注意：这里的字段名要和你的数据库一致
     sql.Format("INSERT INTO users_info (m_username, m_userpsw) VALUES ('%s', '%s')",
         (LPCSTR)CT2A(name), (LPCSTR)CT2A(psw));
     return mysql_query(&mysqlCon, sql) == 0;
 }
-
+// 
 bool SQL_link::DeleteAdmin(CString name) {
     CStringA sql;
     sql.Format("DELETE FROM users_info WHERE m_username = '%s'", (LPCSTR)CT2A(name));

@@ -32,18 +32,18 @@ void SeekDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(SeekDlg, CDialogEx)
-	ON_BN_CLICKED(IDOK, &SeekDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDOK, &SeekDlg::OnBnClicked_Seek_Ok)
 	ON_EN_CHANGE(IDC_EDIT8, &SeekDlg::OnEnChangeEdit8)
 END_MESSAGE_MAP()
 
 
 // SeekDlg 消息处理程序
 
-void SeekDlg::OnBnClickedOk()
+void SeekDlg::OnBnClicked_Seek_Ok()
 {
     UpdateData(TRUE);
 
-    // 修改后的逻辑：只有当两个都为空时才提示输入
+	// 同时判断药品名称和类别是否都为空
     if (t_name.IsEmpty() && t_kind.IsEmpty())
     {
         MessageBox(_T("请输入药品名称或类别进行查询！"), _T("提示"), MB_OK | MB_ICONINFORMATION);
